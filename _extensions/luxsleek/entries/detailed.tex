@@ -1,0 +1,23 @@
+$-- A full entry in upstream's own Work Experience shape: the title in bold
+$-- small caps with its date flushed to the right margin via \dates{}, the
+$-- organisation in italic on the line beneath (with `where` appended to it),
+$-- and `why` set as a run of \smaller diamond-bullet paragraphs. Entries are
+$-- separated by \is, upstream's own inter-item vertical gap.
+$--
+$-- `with` is wrapped in \textit{} here and never linked outright: a document
+$-- that wants it to read as a link writes it as Markdown in the table cell
+$-- itself (`with: "[Mollie BV](https://mollie.com)"`), and the entries filter
+$-- has already turned that into \href{...}{...} by the time this template
+$-- ever sees $entries.with$ -- so \textit{$entries.with$} italicises whatever
+$-- is there, link or plain text, without this template needing to know which.
+$for(entries)$
+\textbf{\textsc{$entries.what$}}\dates{$entries.when$}\\
+$if(entries.with)$at \textit{$entries.with$}$if(entries.where)$, $entries.where$$endif$$else$$if(entries.where)$$entries.where$$endif$$endif$
+$if(entries.why)$
+$for(entries.why)$
+\smaller{$entries.why$}
+$endfor$
+$endif$
+\is
+
+$endfor$

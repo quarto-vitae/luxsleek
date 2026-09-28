@@ -1,0 +1,149 @@
+%!TEX TS-program = pdflatex
+%!TEX encoding = UTF-8 Unicode
+% LuxSleek-CV 1.1 LaTeX template
+%
+% This template has been adapted from the version published at:
+% https://www.overleaf.com/latex/templates/luxsleek-cv/qbvbqmrzxwyj
+%
+% Author:
+% Andreï V. Kostyrka, University of Luxembourg
+%
+% Adapted to be a Quarto template by Mitchell O'Hara-Wild
+%
+% Template license:
+% CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), see LICENSE.md
+%
+% Class options, colours, the tinted-column machinery and Pandoc's own
+% preamble -- everything before \begin{document}. Held in a partial, the way
+% every other quarto-vitae template does, so a second format sharing this
+% design (a cover letter, say) could not drift out of step with it.
+%
+% Upstream ships this as a single self-contained main.tex with zero page
+% margins and two hand-sized minipages standing in for columns (see the note
+% at the top of luxsleek.tex for why that does not survive a CV longer than one
+% page). Everything here is the same document dressed instead in `paracol`,
+% following the precedent already worked out for latexcv's sidebar designs.
+%-------------------------------------------------------------------------------
+% CONFIGURATIONS
+%-------------------------------------------------------------------------------
+$passoptions.latex()$
+%
+% A4 by default; upstream's own choice. Use 'letterpaper' for US letter.
+$doc-class.tex()$
+
+%-------------------------------------------------------------------------------
+%	ENCODING
+%-------------------------------------------------------------------------------
+% Upstream is a pdflatex document; `iftex` guards these so the template still
+% builds if a document overrides `pdf-engine` to xelatex or lualatex, both of
+% which provide UTF-8 input and modern font handling natively.
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\fi
+
+%-------------------------------------------------------------------------------
+%	LOGIC AND LAYOUT
+%-------------------------------------------------------------------------------
+% Two columns that flow independently and can be tinted the whole way down --
+% see the "SIDEBAR" section of luxsleek.tex for what that buys over upstream's
+% pair of minipages.
+\usepackage{paracol}
+
+% Page margins, set by luxsleek.tex (or overridden by the document's own
+% `geometry:`). Upstream sets its own margins to zero and places everything by
+% hand; paracol needs real margins to fill and tint instead, see luxsleek.tex.
+\usepackage{geometry}
+
+% Upstream's own list spacing, applied to any bullet list written in ordinary
+% Markdown prose. The entries styles below do not use itemize themselves --
+% `why` is set as a run of \smaller paragraphs, upstream's own device, not a
+% true list -- so this only ever reaches a list a user writes by hand outside
+% the entries system.
+\usepackage{enumitem}
+\setlist{parsep=0pt, topsep=0pt, partopsep=1pt, itemsep=1pt, leftmargin=6mm}
+
+% Icons for the sidebar's contact block (\faIcon), exactly as the other
+% quarto-vitae templates use fontawesome5 rather than the older v4 package.
+\usepackage{fontawesome5}
+
+\usepackage{graphicx}
+
+% xcolor, for \definecolor/\textcolor/\colorbox -- fontawesome5 above happens
+% to load it as a dependency, but it is asked for outright here rather than
+% relied upon, since it is this file's own \definecolor{cvaccent}{...} below
+% that needs it, not fontawesome5's.
+\usepackage{xcolor}
+
+% Honours `linestretch`, as every other Quarto pdf format does. Not loaded by
+% common.latex() below, and upstream has no opinion on line spacing to
+% inherit, so it is loaded outright here rather than only when linestretch is
+% actually set in the front matter.
+\usepackage{setspace}
+
+%-------------------------------------------------------------------------------
+%	FONT
+%-------------------------------------------------------------------------------
+% FiraSans is upstream's own choice, with the sans face made the document
+% default, exactly as latexcv's designs default to Raleway. Skipped when the
+% document sets `fontfamily`, so that option reaches font-settings.latex()
+% below undisturbed instead of being fought over by two packages.
+$if(fontfamily)$
+$else$
+\ifPDFTeX
+  \usepackage{FiraSans}
+\fi
+\renewcommand*\familydefault{\sfdefault}
+$endif$
+
+% Upstream's own microtype configuration: `tracking`/`letterspace` are what
+% version 1.1 added "for prettier lower caps" -- \headleft, \headright and
+% every entry title here are set in \textsc, and letterspacing is what keeps
+% small caps from reading as cramped at this weight.
+%
+% Passed as pending options rather than loaded outright: font-settings.latex(),
+% called below via common.latex(), loads microtype itself if it is installed
+% (`\IfFileExists{microtype.sty}{\usepackage[...]{microtype}}`), and a second
+% `\usepackage{microtype}` here would be a package-option clash the moment the
+% two disagree. \PassOptionsToPackage queues these for whichever \usepackage
+% call loads the package first, so upstream's tuning survives without this
+% template racing Pandoc's own template to `\usepackage{microtype}`.
+\PassOptionsToPackage{stretch=25, shrink=25, tracking=true, letterspace=30}{microtype}
+
+%-------------------------------------------------------------------------------
+%	COLOUR
+%-------------------------------------------------------------------------------
+% Upstream's single `cvaccent`, used both as the sidebar's fill and as the
+% colour \headright sets a main-column heading in -- one identity colour doing
+% both jobs, exactly as upstream defines it. `headcolor` is the name every
+% other quarto-vitae template uses for this, so it is read here rather than
+% inventing a synonym; upstream's own near-black is kept as the default.
+$if(headcolor)$
+\definecolor{cvaccent}{HTML}{$headcolor$}
+$else$
+\definecolor{cvaccent}{HTML}{1A1A1A}
+$endif$
+
+%-------------------------------------------------------------------------------
+%	PANDOC SUPPORT
+%-------------------------------------------------------------------------------
+% common.latex is required in every custom Quarto LaTeX template, and calls
+% pandoc.tex, which in turn brings in syntax highlighting, tables.tex,
+% graphics.tex, citations.tex, babel-lang.tex, tightlist.tex, biblio-config.tex
+% and header-includes. Do not hand-copy any of those: they are Pandoc's to
+% maintain, and a stale local copy silently drifts out of step with the reader.
+%
+% Upstream loads hyperref itself with `hidelinks`; common.latex() loads it too,
+% so `hidelinks` is passed as an option here rather than repeating the
+% \usepackage, which would be a package-clash error.
+\PassOptionsToPackage{hidelinks}{hyperref}
+$common.latex()$
+$after-header-includes.latex()$
+$hypersetup.latex()$
+
+% Honours mainfont/mainfontoptions and their *fallback variants for a document
+% rendered with xelatex/lualatex, the same way every other Quarto pdf format
+% does. fonts.latex is NOT called: it would load lmodern over the font stack
+% chosen above.
+$font-settings.latex()$

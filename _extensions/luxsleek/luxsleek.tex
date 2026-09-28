@@ -1,0 +1,288 @@
+$luxsleek-preamble.tex()$
+
+%-------------------------------------------------------------------------------
+%	LUXSLEEK
+%
+%	Upstream sets its two columns as a pair of `minipage`s side by side: a
+%	tinted left one built from three stacked, individually fixed-height
+%	colourboxes (fixed at 245mm so the whole page adds up to exactly one A4
+%	sheet), and a plain white one on the right. A minipage cannot break across
+%	a page, so the moment a real CV runs past that one page, upstream's layout
+%	does not reflow -- it silently overflows the sheet.
+%
+%	This uses `paracol` instead, following the precedent already worked out for
+%	latexcv's sidebar designs: two columns that flow independently across as
+%	many pages as they need, with `\backgroundcolor` tinting one of them the
+%	whole way down. See "SIDEBAR TINT" below for the one piece neither of those
+%	precedents already does on its own.
+%-------------------------------------------------------------------------------
+
+$if(geometry)$
+\geometry{$for(geometry)$$geometry$$sep$,$endfor$}
+$else$
+% Modest margins, not upstream's zero: a `\backgroundcolor` pad reaches a little
+% way into whatever margin is here (see below), but the point is to bleed
+% *towards* the edge, not to fight the page geometry for it -- extra bottom
+% margin because a hairline's descender or a photo's shadow reads better with
+% a little more air under it than 1.5cm gives.
+\geometry{top=1.4cm, bottom=1.6cm, left=1.2cm, right=1.4cm}
+$endif$
+
+%-------------------------------------------------------------------------------
+%	COLUMN PADDING AND SIDEBAR TINT
+%-------------------------------------------------------------------------------
+% Breathing space between the tint and the text set on it. Upstream has none to
+% inherit -- its sidebar is a minipage of the full column width with text hard
+% against the colour on both sides -- so this follows latexcv-sidebar's own
+% convention instead (\cvsidebarpad there).
+\newlength{\cvsidebarpad}
+\setlength{\cvsidebarpad}{12pt}
+
+% Gap between the tinted column and the main column's text. The tint eats
+% \cvsidebarpad of this on its way out (see below), so the separation actually
+% left between the two columns is whatever remains.
+\setlength{\columnsep}{\dimexpr$if(columnsep)$$columnsep$$else$18pt$endif$+\cvsidebarpad\relax}
+
+% The sidebar takes upstream's own share of the page; the main column takes the
+% rest. `\columnratio` sets the width of the *first* paracol region, which
+% below is the sidebar, drawn before `\switchcolumn` -- this is latexcv-
+% sidebarleft's column order (narrow column first), not latexcv-sidebar's
+% (main column first).
+\columnratio{$if(sidebar-ratio)$$sidebar-ratio$$else$0.33$endif$}
+
+% Tints column 0 -- the *first* region, i.e. the sidebar -- the full height of
+% the column, across as many pages as the CV runs to. This is the one thing
+% neither existing precedent does by itself: latexcv-sidebar tints column 1
+% (its filled column comes *second*, after the main column), and latexcv-
+% sidebarleft's narrow column, drawn first, is never tinted at all. Here the
+% *first* region is both the narrow one and the filled one, so the
+% `\backgroundcolor` call below targets `c[0]` where latexcv-sidebar targets
+% `c[1]` -- same mechanism, other column.
+%
+% The single length argument pads the column by \cvsidebarpad on *both* its
+% left and right (paracol reads `(horizontal, vertical)`, not `(left, right)`;
+% the vertical component is left at its default of 0, so the tint runs from the
+% column's first line to its last rather than bleeding into the top/bottom
+% margins too). For column 0 that means the left edge of the tint reaches a
+% little way into the page's left margin -- bleeding it towards the paper edge,
+% the way upstream's own edge-to-edge colourbox does -- while the right edge
+% reaches into the columnsep gutter this length was carved out of above,
+% leaving the gap actually visible between the tint and the main column's text
+% equal to `columnsep` alone.
+\backgroundcolor{c[0](\cvsidebarpad,0pt)}{cvaccent}
+
+%-------------------------------------------------------------------------------
+%	CUSTOM COMMANDS
+%
+%	Upstream's own four, kept under their own names for anyone who already
+%	knows this template: \dates for a flush-right date that never wraps, \is
+%	for the vertical gap between entries, \smaller for the diamond-bullet
+%	paragraph `why` is set as, and \headleft/\headright for the two section
+%	headings -- \headleft in the tinted sidebar, \headright in the white main
+%	column. \cvsection/\cvsubsection, which luxsleek.lua actually maps `#`/`##`
+%	onto, are thin wrappers so this template answers to the same two names the
+%	rest of the org's templates do; see luxsleek.lua for why.
+%-------------------------------------------------------------------------------
+% Bold text pushed flush against the right margin of whatever line it lands on,
+% via \hfill, and kept in one unbreakable \mbox so a date range is never itself
+% the thing that wraps.
+\newcommand{\dates}[1]{\hfill\mbox{\textbf{#1}}}
+
+% The vertical gap between one entry and the next.
+\newcommand{\is}{\par\vskip.7ex plus .3ex}
+
+% Upstream's "bullet point" for a `why` elaboration: a small paragraph opened
+% by a diamond glyph, not a true `itemize` -- which is exactly what lets it
+% wrap onto as many lines as it needs without the hanging indent an itemize
+% would add.
+% Doubled: Pandoc's own template syntax reads a lone dollar sign as the start
+% of a variable reference, so upstream's inline-math diamond has to be escaped
+% this way (twice over) to survive being read as a template before it is read
+% as LaTeX.
+\newcommand{\smaller}[1]{{\footnotesize$$\diamond$$\ #1}}
+
+% A heading inside the tinted sidebar: small caps and a hairline rule, in
+% whatever colour is already in force. Never sets a colour itself, because the
+% sidebar column sets \color{white} once for the whole column (see
+% \cvsidebarbody) rather than requiring every heading to repeat it.
+\newcommand{\headleft}[1]{\vspace*{3ex}\textsc{\textbf{#1}}\par%
+  \vspace*{-1.5ex}\hrulefill\par\vspace*{0.7ex}}
+
+% A heading in the white main column: large, coloured small caps over a rule in
+% the same colour. Unlike \headleft this does set its own colour, because the
+% main column's default text colour is black and a section heading is exactly
+% the thing that should not be.
+\newcommand{\headright}[1]{\vspace*{1.4ex}\textsc{\Large\color{cvaccent}#1}\par%
+  \vspace*{-1.6ex}{\color{cvaccent}\hrulefill}\par}
+
+% What luxsleek.lua actually emits for `#`/`##`. \phantomsection is what lets a
+% \label written right after a heading (luxsleek.lua adds one whenever the
+% heading carries an identifier) resolve to the right page for \ref and for
+% cross-references such as @sec-education -- hyperref anchors a link at the
+% nearest \phantomsection/sectioning command, and \headright/\headleft are
+% neither.
+%
+% Upstream draws no second level at all. \cvsubsection borrows \headright's
+% visual language -- small caps in the accent colour -- at body size and
+% without the rule, so a document that does use `##` gets a heading that
+% clearly belongs under the `#` above it rather than a foreign one.
+\newcommand{\cvsection}[1]{\phantomsection\headright{#1}}
+\newcommand{\cvsubsection}[1]{\phantomsection\vspace{1ex}%
+  {\bfseries\textsc{\color{cvaccent}#1}}\par\vspace{0.3ex}}
+
+%-------------------------------------------------------------------------------
+%	CONTACT DETAILS
+%-------------------------------------------------------------------------------
+% One \cvcontact{icon}{text} call per contact field present in the front
+% matter, in the icon-keyed style latexcv-preamble.tex's \cvcontacts uses --
+% every template renders the same fields, and what differs between designs is
+% only how the calls are strung together, so each design redefines
+% \cvcontact/\cvcontactsep rather than repeating the list of fields. This
+% template has one place contacts are ever shown (the sidebar), but the split
+% is kept anyway: it is what documents that \cvsidebarcontacts below is a
+% *local* redefinition rather than this design's only possible one.
+\newif\ifcvfirstcontact
+\cvfirstcontacttrue
+\newcommand{\cvcontactsep}{, }
+\newcommand{\cvcontacticon}[1]{\faIcon{#1}~}
+\newcommand{\cvcontact}[2]{%
+  \ifcvfirstcontact\cvfirstcontactfalse\else\cvcontactsep\fi
+  \mbox{\cvcontacticon{#1}#2}}
+\newcommand{\cvcontactsreset}{\cvfirstcontacttrue}
+
+% Field names match the vocabulary awesome-cv's front matter uses, so the same
+% personal-information block drives every quarto-vitae template.
+\newcommand{\cvcontacts}{%
+$if(address)$\cvcontact{map-marker-alt}{$address$}$endif$%
+$if(phone)$\cvcontact{phone-alt}{$phone$}$endif$%
+$if(email)$\cvcontact{envelope}{\href{mailto:$email$}{$email$}}$endif$%
+$if(www)$\cvcontact{home}{\href{https://$www$}{$www$}}$endif$%
+$if(github)$\cvcontact{github}{\href{https://github.com/$github$}{$github$}}$endif$%
+$if(linkedin)$\cvcontact{linkedin}{\href{https://www.linkedin.com/in/$linkedin$}{$linkedin$}}$endif$%
+}
+
+% Contacts as upstream sets them in the sidebar: one per line, in whatever
+% colour the column is already in (white). \begingroup keeps the redefinitions
+% local, so a document that ever emitted \cvcontacts a second time elsewhere
+% would get the plain comma-separated form there, not this one.
+%
+% The nested \renewcommand takes its own arguments, so the `#1`/`#2` inside it
+% have to be doubled to `##1`/`##2` -- they belong to the macro being defined
+% two levels down, not to \cvsidebarcontacts itself, which takes none.
+\newcommand{\cvsidebarcontacts}{%
+  \begingroup
+  \cvcontactsreset
+  \renewcommand{\cvcontactsep}{\\[0.6ex]}%
+  \renewcommand{\cvcontact}[2]{%
+    \ifcvfirstcontact\cvfirstcontactfalse\else\cvcontactsep\fi
+    \faIcon{##1}~##2}%
+  \cvcontacts\par
+  \endgroup}
+
+%-------------------------------------------------------------------------------
+%	SIDEBAR CONTENT
+%-------------------------------------------------------------------------------
+% The whole of the tinted column: photo and name at the top (upstream's own
+% dark title block, needing no colourbox of its own here since the *entire*
+% column is already tinted by `\backgroundcolor` above), then Profile Summary,
+% then Contact information, then whatever `sidebar:` front matter supplies --
+% Languages and Skills and expertise in upstream's own example -- in the order
+% given.
+%
+% `aboutme` is given a fixed "Profile Summary" block of its own, matching
+% upstream's fixed structure, rather than asking a user to add it through
+% `sidebar:` themselves -- upstream always shows one, so the front matter
+% option every other quarto-vitae template already uses for it is wired
+% straight to that fixed heading.
+\newcommand{\cvsidebarbody}{%
+  % \begingroup, not just entering the column: paracol switches which column
+  % is being *set*, but it is not itself a TeX group, so a bare \color{white}
+  % or \raggedright here would survive \switchcolumn and keep going -- turning
+  % every heading, date and entry title in the main column white-on-white (and
+  % ragged right) for the rest of the document. \endgroup below closes it
+  % again before \switchcolumn is ever reached.
+  \begingroup
+  % Ragged right, as upstream sets its sidebar minipage (but not its main
+  % column): justifying text this narrow opens gaps wide enough to read as
+  % mistakes.
+  \raggedright
+  \color{white}
+  % Starred: an ordinary \vspace at the top of a paracol column is discarded,
+  % which is exactly why the sidebar's own top padding has to be asked for
+  % explicitly rather than left to \cvsidebarpad's role as a background
+  % extension -- that pad only ever reached sideways, never down from the top.
+  \vspace*{\cvsidebarpad}%
+$if(profilepic)$
+  \begin{center}
+    \includegraphics[width=$if(profilepic-width)$$profilepic-width$$else$0.55\linewidth$endif$]{$profilepic$}
+  \end{center}
+  \vspace{1.5ex}
+$endif$
+  \begin{center}
+    {\Large $name$$if(surname)$\\[0.3ex]\textbf{\textsc{$surname$}}$endif$}
+  \end{center}
+$if(position)$
+  \begin{center}\small\textit{$position$}\end{center}
+$endif$
+$if(aboutme)$
+  \headleft{Profile Summary}
+  \small $aboutme$\par
+  \normalsize
+$endif$
+  \headleft{$if(contacts-title)$$contacts-title$$else$Contact information$endif$}
+  \cvsidebarcontacts
+$for(sidebar)$
+  \headleft{$sidebar.title$}
+$for(sidebar.items)$
+  $sidebar.items$\\[0.5ex]
+$endfor$
+$endfor$
+  \endgroup}
+
+\begin{document}
+
+% Upstream's own "style definitions": no first-line indent, no page numbers,
+% and no vertical stretching to fill a short last page. `\raggedbottom` matters
+% more here than it did to upstream, whose fixed-height boxes could not stretch
+% anyway -- a `paracol` column otherwise rubber-stretches its inter-paragraph
+% glue to reach the bottom margin on a page that ends early.
+\setlength{\parindent}{0pt}
+\pagestyle{empty}
+\raggedbottom
+
+\begin{paracol}{2}
+
+%-------------------------------------------------------------------------------
+%	SIDEBAR COLUMN
+%-------------------------------------------------------------------------------
+\cvsidebarbody
+
+%-------------------------------------------------------------------------------
+%	MAIN COLUMN
+%-------------------------------------------------------------------------------
+\switchcolumn
+
+$if(linestretch)$
+\setstretch{$linestretch$}
+$endif$
+
+$for(include-before)$
+$include-before$
+$endfor$
+
+$body$
+
+$before-bib.tex()$
+
+$if(nocite-ids)$
+\nocite{$for(nocite-ids)$$it$$sep$, $endfor$}
+$endif$
+$biblio.tex()$
+
+$for(include-after)$
+$include-after$
+$endfor$
+
+\end{paracol}
+
+\end{document}

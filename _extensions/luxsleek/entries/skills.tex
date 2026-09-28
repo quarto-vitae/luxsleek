@@ -1,0 +1,23 @@
+$-- A category paired with its members, set in the main column's own visual
+$-- language rather than the sidebar's: `what` in bold, then either `with` as
+$-- one run of comma-joined text on the same line (upstream's own shape for its
+$-- sidebar Languages block) or, if the members are given as a list in `why`
+$-- instead, one \smaller diamond-bullet line per member (upstream's shape for
+$-- a longer, elaborated category, such as its Skills and expertise entries).
+$--
+$-- This is *not* how a document puts a skills category into the tinted
+$-- sidebar -- that is the `sidebar:` front-matter block instead, rendered by
+$-- \cvsidebarbody's own loop over `sidebar.items`. This template exists so
+$-- that `# Skills` plus a `.entries style="skills"` div, written straight into
+$-- the document body the way the shared Marie Curie example does, still
+$-- renders sensibly in the white column.
+$for(entries)$
+\textbf{$entries.what$}$if(entries.with)$\ $entries.with$$endif$%
+$if(entries.why)$\\
+$for(entries.why)$
+\smaller{$entries.why$}
+$endfor$
+$endif$
+\is
+
+$endfor$

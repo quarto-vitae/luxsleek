@@ -1,0 +1,47 @@
+title: LuxSleek CV
+author: Mitchell O'Hara-Wild
+version: 0.1.0
+quarto-required: ">=1.7.0"
+contributes:
+  formats:
+    pdf:
+      # Upstream is a plain pdflatex document (T1/inputenc, FiraSans, moresize-
+      # free sizing), the same engine family latexcv's designs use, and unlike
+      # awesome-cv there is no Unicode-only package involved -- so there is no
+      # reason to ask for xelatex here.
+      pdf-engine: pdflatex
+      template: luxsleek.tex
+      # Class options, colours and Pandoc's own preamble live in a partial so a
+      # future second format (e.g. a matching cover letter) could share it
+      # without drifting, the way awesome-cv's CV and letter formats do.
+      template-partials:
+        - luxsleek-preamble.tex
+      documentclass: article
+      papersize: a4
+      # Upstream's own size.
+      fontsize: 11pt
+      # Upstream marks links by icon, not colour, in the sidebar contact block.
+      # Quarto's pdf format defaults this to true, which would override that
+      # and print every contact and link in blue.
+      colorlinks: false
+      # Default knitr engine printing data directly as a markdown table, so a
+      # code cell can carry entries.
+      df-print: kable
+      # Provided by the embedded copy of quarto-vitae/curriculum, under
+      # _extensions/quarto-vitae/curriculum. Filters are matched by the
+      # embedded extension's directory name (its extension id), not by the
+      # Lua filter's filename -- so this must say "curriculum", matching
+      # quarto-vitae/curriculum's own directory name, not "vitae-entries".
+      # Refresh with:
+      #   quarto update quarto-vitae/curriculum --embed luxsleek
+      filters:
+        - curriculum
+        # Maps `#` and `##` onto \cvsection/\cvsubsection, which this design
+        # implements as upstream's \headright -- see luxsleek.lua for why the
+        # org's usual names are kept even though upstream calls the mechanism
+        # something else.
+        - at: post-quarto
+          path: luxsleek.lua
+      # Style names this template implements, for the filter's fallback warning.
+      vitae:
+        styles: [detailed, brief, skills]

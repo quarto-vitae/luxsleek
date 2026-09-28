@@ -1,0 +1,11 @@
+$-- A single line per entry: `what` bold, `with` italic and `where` following
+$-- it, all set as one run of text with `when` flushed right via \dates{} --
+$-- the shape upstream's own Education entries would take with their `why`
+$-- elaboration left out. No \smaller elaboration is emitted here at all, even
+$-- if a table happens to carry a `why` column: a listing that needs one wants
+$-- the `detailed` style instead.
+$for(entries)$
+\textbf{$entries.what$}$if(entries.with)$, \textit{$entries.with$}$endif$$if(entries.where)$, $entries.where$$endif$\dates{$entries.when$}%
+\is
+
+$endfor$
