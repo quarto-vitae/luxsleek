@@ -2,9 +2,10 @@
 name: Marie
 surname: Curie
 position: "Physicist and Chemist"
-address: "Paris, France"
-email: "marie.curie@example.org"
-github: mcurie
+social:
+  - address: "Paris, France"
+  - email: "marie.curie@example.org"
+  - github: mcurie
 # The sidebar's fixed "Profile Summary" block.
 aboutme: "Physicist and chemist renowned for pioneering research on radioactivity, and the first person to win the Nobel Prize twice."
 # Fills the tinted sidebar below Contact information, in the order given. Every
@@ -18,10 +19,10 @@ sidebar:
   - title: Skills and expertise
     items:
       - "**Radiochemistry** Fractional crystallisation, piezoelectric quartz electrometry, radiometric measurement"
-# Uncomment to add more to the header:
-# phone: "+33 1 23 45 67 89"
-# www: "example.org"
-# linkedin: mcurie
+# Uncomment to add more to the header, under `social` above:
+#   - phone: "+33 1 23 45 67 89"
+#   - website: example.org
+#   - linkedin: mcurie
 # profilepic: "profile.png"
 # headcolor: "8C1E1E"
 format: luxsleek-pdf

@@ -34,9 +34,10 @@ Set the format and describe yourself in the YAML header:
 name: Marie
 surname: Curie
 position: "Physicist and Chemist"
-address: "Paris, France"
-email: "marie.curie@example.org"
-github: mcurie
+social:
+  - address: "Paris, France"
+  - email: "marie.curie@example.org"
+  - github: mcurie
 aboutme: "A short line under your name, in the sidebar's Profile Summary."
 format: luxsleek-pdf
 ---
@@ -85,7 +86,9 @@ sidebar:
       - "**Radiochemistry** Fractional crystallisation, piezoelectric quartz electrometry"
 ```
 
-Contact fields (`address`, `phone`, `email`, `www`, `github`, `linkedin`) are
+Contact details are given as a `social` list (`address`, `phone`, `email`,
+`website`, `github`, `linkedin` and more, in the order written, as documented
+by [curriculum](https://github.com/mitchelloharawild/curriculum)) and are
 placed in the sidebar automatically and need no `sidebar:` entry of their own.
 `aboutme` fills the sidebar's fixed Profile Summary block, under the name.
 
@@ -146,7 +149,7 @@ Set these in the YAML header. All are optional except `name`.
 | `profilepic` | Path to a profile image, shown above the name |
 | `profilepic-width` | Width of the photo, defaulting to `0.55\linewidth` |
 | `aboutme` | Fills the sidebar's Profile Summary block |
-| `address`, `phone`, `email`, `www`, `github`, `linkedin` | Contact details, one per line in the sidebar |
+| `social` | List of `service: handle` contact details, one per line in the sidebar |
 | `contacts-title` | Heading over the contact block, defaulting to "Contact information" |
 | `sidebar` | A list of `{title, items}` blocks filling the rest of the sidebar, such as Languages or Skills and expertise |
 
