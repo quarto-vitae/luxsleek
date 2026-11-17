@@ -150,15 +150,13 @@ $endif$
   \mbox{\cvcontacticon{#1}#2}}
 \newcommand{\cvcontactsreset}{\cvfirstcontacttrue}
 
-% Field names match the vocabulary awesome-cv's front matter uses, so the same
-% personal-information block drives every quarto-vitae template.
+% Rendered from the normalised `social` front matter (see curriculum's
+% social.lua): every item carries an icon, a label and, where the service has
+% one, a link, so this loop knows nothing about any particular service.
 \newcommand{\cvcontacts}{%
-$if(address)$\cvcontact{map-marker-alt}{$address$}$endif$%
-$if(phone)$\cvcontact{phone-alt}{$phone$}$endif$%
-$if(email)$\cvcontact{envelope}{\href{mailto:$email$}{$email$}}$endif$%
-$if(www)$\cvcontact{home}{\href{https://$www$}{$www$}}$endif$%
-$if(github)$\cvcontact{github}{\href{https://github.com/$github$}{$github$}}$endif$%
-$if(linkedin)$\cvcontact{linkedin}{\href{https://www.linkedin.com/in/$linkedin$}{$linkedin$}}$endif$%
+$for(social)$
+$if(social.url)$\cvcontact{$social.icon$}{\href{$social.url$}{$social.label$}}$else$\cvcontact{$social.icon$}{$social.label$}$endif$%
+$endfor$
 }
 
 % Contacts as upstream sets them in the sidebar: one per line, in whatever
